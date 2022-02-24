@@ -1,4 +1,4 @@
-from vilt.datasets import F30KCaptionKarpathyDataset
+from ViLT.vilt.datasets import F30KCaptionKarpathyDataset
 from .datamodule_base import BaseDataModule
 
 

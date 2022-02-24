@@ -1,15 +1,15 @@
-from ViLT.vilt.datasets import VisualGenomeCaptionDataset
+from ViLT.vilt.datasets import WITDataset
 from .datamodule_base import BaseDataModule
 
 
-class VisualGenomeCaptionDataModule(BaseDataModule):
+class WITDataModule(BaseDataModule):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
     @property
     def dataset_cls(self):
-        return VisualGenomeCaptionDataset
+        return WITDataset
 
     @property
     def dataset_name(self):
-        return "vg"
+        return "wit"

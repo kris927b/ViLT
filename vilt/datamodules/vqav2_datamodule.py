@@ -1,4 +1,4 @@
-from vilt.datasets import VQAv2Dataset
+from ViLT.vilt.datasets import VQAv2Dataset
 from .datamodule_base import BaseDataModule
 from collections import defaultdict
 

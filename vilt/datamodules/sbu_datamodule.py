@@ -1,4 +1,4 @@
-from vilt.datasets import SBUCaptionDataset
+from ViLT.vilt.datasets import SBUCaptionDataset
 from .datamodule_base import BaseDataModule
 
 

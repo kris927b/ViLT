@@ -1,10 +1,10 @@
 import torch
 import torch.nn as nn
 import pytorch_lightning as pl
-import vilt.modules.vision_transformer as vit
+import ViLT.vilt.modules.vision_transformer as vit
 
 from transformers.models.bert.modeling_bert import BertConfig, BertEmbeddings
-from vilt.modules import heads, objectives, vilt_utils
+from ViLT.vilt.modules import heads, objectives, vilt_utils
 
 
 class ViLTransformerSS(pl.LightningModule):
@@ -127,7 +127,7 @@ class ViLTransformerSS(pl.LightningModule):
         text_masks = batch[f"text_masks"]
         text_embeds = self.text_embeddings(text_ids)
 
-        if image_embeds is None and image_masks is None:
+        if image_embeds is None and image_masks is None and imgkey in batch:
             img = batch[imgkey][0]
             (
                 image_embeds,
@@ -145,21 +145,28 @@ class ViLTransformerSS(pl.LightningModule):
                 None,
             )
 
-        text_embeds, image_embeds = (
-            text_embeds + self.token_type_embeddings(torch.zeros_like(text_masks)),
-            image_embeds
-            + self.token_type_embeddings(
-                torch.full_like(image_masks, image_token_type_idx)
-            ),
-        )
+        if image_embeds:
+            text_embeds, image_embeds = (
+                text_embeds + self.token_type_embeddings(torch.zeros_like(text_masks)),
+                image_embeds
+                + self.token_type_embeddings(
+                    torch.full_like(image_masks, image_token_type_idx)
+                ),
+            )
 
-        co_embeds = torch.cat([text_embeds, image_embeds], dim=1)
-        co_masks = torch.cat([text_masks, image_masks], dim=1)
-
-        x = co_embeds
+            co_embeds = torch.cat([text_embeds, image_embeds], dim=1)
+            co_masks = torch.cat([text_masks, image_masks], dim=1)
+            masks = co_masks
+            x = co_embeds
+        else:
+            text_embeds = text_embeds + self.token_type_embeddings(
+                torch.zeros_like(text_masks)
+            )
+            x = text_embeds
+            masks = text_masks
 
         for i, blk in enumerate(self.transformer.blocks):
-            x, _attn = blk(x, mask=co_masks)
+            x, _attn = blk(x, mask=masks)
 
         x = self.transformer.norm(x)
         text_feats, image_feats = (
