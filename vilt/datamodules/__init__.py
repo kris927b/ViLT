@@ -5,6 +5,8 @@ from .conceptual_caption_datamodule import ConceptualCaptionDataModule
 from .sbu_datamodule import SBUCaptionDataModule
 from .vqav2_datamodule import VQAv2DataModule
 from .nlvr2_datamodule import NLVR2DataModule
+from .wit_datamodule import WITDataModule
+from .dagw_datamodule import DAGWDataset
 
 _datamodules = {
     "vg": VisualGenomeCaptionDataModule,
@@ -14,4 +16,6 @@ _datamodules = {
     "sbu": SBUCaptionDataModule,
     "vqa": VQAv2DataModule,
     "nlvr2": NLVR2DataModule,
+    "wit": WITDataModule,
+    "dagw": DAGWDataset,
 }

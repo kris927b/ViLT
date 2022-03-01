@@ -62,3 +62,7 @@ def make_arrow(root, dataset_root):
         del table
         del bs
         gc.collect()
+
+
+if __name__ == "__main__":
+    make_arrow("data", "data")

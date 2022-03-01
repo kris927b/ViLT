@@ -32,6 +32,7 @@ def config():
     patch_size = 32
     draw_false_image = 1
     image_only = False
+    text_only = False
 
     # Text Setting
     vqav2_label_size = 3129
@@ -103,12 +104,25 @@ def task_mlm_itm():
 
 @ex.named_config
 def wit_task_mlm_itm():
-    exp_name = "mlm_itm"
+    exp_name = "wit_mlm_itm"
     datasets = ["wit"]
     loss_names = _loss_names({"itm": 1, "mlm": 1})
     batch_size = 4096
     max_epoch = 10
     max_image_len = 200
+
+
+@ex.named_config
+def dagw_task_mlm_itm():
+    exp_name = "dagw_mlm"
+    datasets = ["dagw"]
+    loss_names = _loss_names({"mlm": 1})
+    batch_size = 4096
+    max_epoch = 10
+    max_image_len = 200
+    text_only = True
+    draw_false_image = 0
+    draw_false_text = 0
 
 
 @ex.named_config

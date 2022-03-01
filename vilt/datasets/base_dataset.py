@@ -21,6 +21,7 @@ class BaseDataset(torch.utils.data.Dataset):
         draw_false_image=0,
         draw_false_text=0,
         image_only=False,
+        text_only=False,
     ):
         """
         data_dir : where dataset file *.arrow lives; existence should be guaranteed via DataModule.prepare_data
@@ -37,6 +38,7 @@ class BaseDataset(torch.utils.data.Dataset):
         self.draw_false_image = draw_false_image
         self.draw_false_text = draw_false_text
         self.image_only = image_only
+        self.text_only = text_only
         self.data_dir = data_dir
 
         if len(names) != 0:
@@ -143,8 +145,14 @@ class BaseDataset(torch.utils.data.Dataset):
         while result is None:
             try:
                 ret = dict()
-                ret.update(self.get_image(index))
-                if not self.image_only:
+                if self.image_only:
+                    ret.update(self.get_image(index))
+                elif self.text_only:
+                    txt = self.get_text(index)
+                    ret.update({"replica": True if txt["cap_index"] > 0 else False})
+                    ret.update(txt)
+                else:
+                    ret.update(self.get_image(index))
                     txt = self.get_text(index)
                     ret.update({"replica": True if txt["cap_index"] > 0 else False})
                     ret.update(txt)
