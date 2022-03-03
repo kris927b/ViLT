@@ -8,11 +8,13 @@ import os
 from tqdm import tqdm
 from glob import glob
 
+SUB = 50000
+
 
 def path2rest(path, iid2captions):
     captions, split = iid2captions[path]
 
-    binary = requests.get(path).raw
+    binary = requests.get(path).content
 
     return [
         binary,
@@ -42,10 +44,10 @@ def make_arrow(root, dataset_root):
     #     len(paths), len(caption_paths), len(iid2captions),
     # )
 
-    sub_len = int(len(iid2captions) // 50000)
+    sub_len = int(len(iid2captions) // SUB)
     subs = list(range(sub_len + 1))
     for sub in subs:
-        sub_paths = list(iid2captions.keys())[sub * 50000 : (sub + 1) * 50000]
+        sub_paths = list(iid2captions.keys())[sub * SUB : (sub + 1) * SUB]
         bs = [path2rest(path, iid2captions) for path in tqdm(sub_paths)]
         dataframe = pd.DataFrame(
             bs,
