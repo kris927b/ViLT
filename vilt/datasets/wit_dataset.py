@@ -4,13 +4,7 @@ from .base_dataset import BaseDataset
 class WITDataset(BaseDataset):
     def __init__(self, *args, split="", **kwargs):
         assert split in ["train", "val", "test"]
-        if split == "test":
-            split = "val"
-
-        if split == "train":
-            names = [f"wit_train_{i}" for i in range(9)]
-        elif split == "val":
-            names = ["wit_val_0"]
+        names = [f"wit_train_{i}" for i in range(9)]
 
         super().__init__(
             *args,

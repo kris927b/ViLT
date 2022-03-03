@@ -17,7 +17,7 @@ def path2rest(path, iid2captions):
     return [
         binary,
         captions,
-        path,
+        "_".join(path.strip().split("/")[-3]),
         split,
     ]
 
