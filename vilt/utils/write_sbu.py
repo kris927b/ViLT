@@ -34,7 +34,7 @@ def path2rest(path, iid2captions):
 
 
 def make_arrow(root, dataset_root):
-    with open(f"{root}/en_annot.json", "r") as fp:
+    with open(f"{root}/annot.json", "r") as fp:
         captions = json.load(fp)
 
     iid2captions = dict()
