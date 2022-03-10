@@ -17,4 +17,4 @@ class DAGWDataset(BaseDataset):
         )
 
     def __getitem__(self, index):
-        self.get_suite(index)
+        return self.get_suite(index)

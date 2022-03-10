@@ -4,7 +4,13 @@ from .base_dataset import BaseDataset
 class WITDataset(BaseDataset):
     def __init__(self, *args, split="", **kwargs):
         assert split in ["train", "val", "test"]
-        names = [f"wit_train_{i}" for i in range(9)]
+        if split == "test":
+            split = "val"
+
+        if split == "train":
+            names = [f"wit_train_{i}" for i in range(9)]
+        elif split == "val":
+            names = []
 
         super().__init__(
             *args,
@@ -14,4 +20,4 @@ class WITDataset(BaseDataset):
         )
 
     def __getitem__(self, index):
-        self.get_suite(index)
+        return self.get_suite(index)

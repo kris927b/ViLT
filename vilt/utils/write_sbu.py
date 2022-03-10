@@ -40,7 +40,8 @@ def make_arrow(root, dataset_root):
     iid2captions = dict()
     for cap in tqdm(captions):
         iid = cap[0]
-        iid2captions[iid] = [cap[1]]
+        if iid:
+            iid2captions[iid] = [cap[1]]
 
     # paths = list(glob(f"{root}/images_train/*/*"))
     # random.shuffle(paths)

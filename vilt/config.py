@@ -103,6 +103,16 @@ def task_mlm_itm():
 
 
 @ex.named_config
+def sbu_task_mlm_itm():
+    exp_name = "sbu_mlm_itm"
+    datasets = ["sbu"]
+    loss_names = _loss_names({"itm": 1, "mlm": 1})
+    batch_size = 4096
+    max_epoch = 10
+    max_image_len = 200
+
+
+@ex.named_config
 def wit_task_mlm_itm():
     exp_name = "wit_mlm_itm"
     datasets = ["wit"]
