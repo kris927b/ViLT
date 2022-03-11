@@ -1,4 +1,4 @@
-from ViLT.vilt.datasets import CocoCaptionKarpathyDataset
+from vilt.datasets import CocoCaptionKarpathyDataset
 from .datamodule_base import BaseDataModule
 
 

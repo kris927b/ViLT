@@ -10,7 +10,7 @@ import functools
 from torch.utils.data.distributed import DistributedSampler
 from einops import rearrange
 
-from ViLT.vilt.modules.dist_utils import all_gather
+from vilt.modules.dist_utils import all_gather
 
 
 def cost_matrix_cosine(x, y, eps=1e-5):

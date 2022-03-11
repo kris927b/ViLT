@@ -1,4 +1,4 @@
-from ViLT.vilt.datasets import VisualGenomeCaptionDataset
+from vilt.datasets import VisualGenomeCaptionDataset
 from .datamodule_base import BaseDataModule
 
 

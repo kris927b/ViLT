@@ -1,4 +1,4 @@
-from ViLT.vilt.datasets import NLVR2Dataset
+from vilt.datasets import NLVR2Dataset
 from .datamodule_base import BaseDataModule
 
 

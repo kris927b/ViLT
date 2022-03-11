@@ -1,4 +1,4 @@
-from ViLT.vilt.datasets import WITDataset
+from vilt.datasets import WITDataset
 from .datamodule_base import BaseDataModule
 
 

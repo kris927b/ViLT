@@ -6,9 +6,9 @@ from transformers import (
     get_polynomial_decay_schedule_with_warmup,
     get_cosine_schedule_with_warmup,
 )
-from ViLT.vilt.modules.dist_utils import all_gather
-from ViLT.vilt.modules.objectives import compute_irtr_recall
-from ViLT.vilt.gadgets.my_metrics import Accuracy, VQAScore, Scalar
+from vilt.modules.dist_utils import all_gather
+from vilt.modules.objectives import compute_irtr_recall
+from vilt.gadgets.my_metrics import Accuracy, VQAScore, Scalar
 
 
 def set_metrics(pl_module):

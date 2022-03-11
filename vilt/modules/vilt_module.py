@@ -4,7 +4,7 @@ import pytorch_lightning as pl
 import ViLT.vilt.modules.vision_transformer as vit
 
 from transformers.models.bert.modeling_bert import BertConfig, BertEmbeddings
-from ViLT.vilt.modules import heads, objectives, vilt_utils
+from vilt.modules import heads, objectives, vilt_utils
 
 
 class ViLTransformerSS(pl.LightningModule):

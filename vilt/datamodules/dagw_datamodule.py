@@ -1,4 +1,4 @@
-from ViLT.vilt.datasets import DAGWDataset
+from vilt.datasets import DAGWDataset
 from .datamodule_base import BaseDataModule
 
 
