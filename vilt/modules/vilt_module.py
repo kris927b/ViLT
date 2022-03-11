@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 import pytorch_lightning as pl
-import ViLT.vilt.modules.vision_transformer as vit
+import vilt.modules.vision_transformer as vit
 
 from transformers.models.bert.modeling_bert import BertConfig, BertEmbeddings
 from vilt.modules import heads, objectives, vilt_utils
