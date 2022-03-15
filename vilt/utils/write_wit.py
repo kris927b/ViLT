@@ -36,7 +36,7 @@ def path2rest(path, iid2captions):
 
 def find_images(iid2captions, pixels):
     for line in pixels:
-        l = line.strip().split("\t")
+        l = line.decode().strip().split("\t")
         if l[0] in iid2captions.keys():
             img = Image.frombytes("RGB", (300, 300), decodestring(l[1])).tobytes()
             yield [
@@ -104,4 +104,4 @@ def make_arrow(root, dataset_root):
 
 
 if __name__ == "__main__":
-    make_arrow("data2", "data")
+    make_arrow("data", "data2")
