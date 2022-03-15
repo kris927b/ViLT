@@ -12,7 +12,7 @@ from PIL import Image
 import io
 import gzip
 
-SUB = 50000
+SUB = 50
 
 LINK = "https://analytics.wikimedia.org/published/datasets/one-off/caption_competition/training/image_pixels/part-{part}-04b253b8-db8c-4d14-a23f-3433a86841b4-c000.csv.gz"
 
@@ -67,39 +67,39 @@ def make_arrow(root, dataset_root):
     #     len(paths), len(caption_paths), len(iid2captions),
     # )
 
-    # sub_len = int(len(iid2captions) // SUB)
-    # subs = list(range(sub_len + 1))
-    # for sub in subs:
-    #     sub_paths = list(iid2captions.keys())[sub * SUB : (sub + 1) * SUB]
-    bs = [
-        find_images(
-            iid2captions,
-            gzip.open(
-                io.BytesIO(
-                    requests.get(
-                        LINK.format(part="0" * (5 - len(str(i))) + str(i))
-                    ).content
+    sub_len = int(200 // SUB)
+    subs = list(range(sub_len + 1))
+    for sub in subs:
+        sub_paths = list(range(sub * SUB, (sub + 1) * SUB))
+        bs = [
+            find_images(
+                iid2captions,
+                gzip.open(
+                    io.BytesIO(
+                        requests.get(
+                            LINK.format(part="0" * (5 - len(str(i))) + str(i))
+                        ).content
+                    ),
+                    mode="rb",
                 ),
-                mode="rb",
-            ),
+            )
+            for i in tqdm(sub_paths)
+        ]
+        dataframe = pd.DataFrame(
+            bs,
+            columns=["image", "caption", "image_id", "split"],
         )
-        for i in tqdm(range(200))
-    ]
-    dataframe = pd.DataFrame(
-        bs,
-        columns=["image", "caption", "image_id", "split"],
-    )
-    print("Instances:", len(dataframe))
-    table = pa.Table.from_pandas(dataframe)
+        print("Instances:", len(dataframe))
+        table = pa.Table.from_pandas(dataframe)
 
-    os.makedirs(dataset_root, exist_ok=True)
-    with pa.OSFile(f"{dataset_root}/wit_train.arrow", "wb") as sink:
-        with pa.RecordBatchFileWriter(sink, table.schema) as writer:
-            writer.write_table(table)
-    del dataframe
-    del table
-    del bs
-    gc.collect()
+        os.makedirs(dataset_root, exist_ok=True)
+        with pa.OSFile(f"{dataset_root}/wit_train_{sub}.arrow", "wb") as sink:
+            with pa.RecordBatchFileWriter(sink, table.schema) as writer:
+                writer.write_table(table)
+        del dataframe
+        del table
+        del bs
+        gc.collect()
 
 
 if __name__ == "__main__":
