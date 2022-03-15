@@ -9,6 +9,7 @@ import os
 from tqdm import tqdm
 from glob import glob
 from PIL import Image
+from base64 import decodestring
 import io
 import gzip
 
@@ -37,7 +38,7 @@ def find_images(iid2captions, pixels):
     for line in pixels:
         l = line.strip().split("\t")
         if l[0] in iid2captions.keys():
-            img = Image.open(l[1]).tobytes()
+            img = Image.frombytes("RGB", (300, 300), decodestring(l[1])).tobytes()
             yield [
                 img,
                 iid2captions[l[0]][0],
