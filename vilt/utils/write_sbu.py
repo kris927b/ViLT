@@ -9,24 +9,25 @@ from io import BytesIO
 
 from tqdm import tqdm
 from glob import glob
+from PIL import Image, UnidentifiedImageError
 
-import matplotlib.pyplot as plt
-import matplotlib.image as mpimg
-
-SUB = 50000
+SUB = 10000
 
 
 def path2rest(path, iid2captions):
     name = path.split("/")[-1].split(".")[0]
     split = "train"
     iid = path
-
+    captions = iid2captions[iid]
     binary = requests.get(path).content
 
-    captions = iid2captions[iid]
+    try:
+        img = Image.open(BytesIO(binary)).tobytes()
+    except UnidentifiedImageError:
+        return None
 
     return [
-        binary,
+        img,
         captions,
         name,
         split,
@@ -34,7 +35,7 @@ def path2rest(path, iid2captions):
 
 
 def make_arrow(root, dataset_root):
-    with open(f"{root}/annot.json", "r") as fp:
+    with open(f"{root}/da_annot.json", "r") as fp:
         captions = json.load(fp)
 
     iid2captions = dict()
@@ -61,6 +62,8 @@ def make_arrow(root, dataset_root):
     for sub in subs:
         sub_paths = list(iid2captions.keys())[sub * SUB : (sub + 1) * SUB]
         bs = [path2rest(path, iid2captions) for path in tqdm(sub_paths)]
+        bs = list(filter(None, bs))
+        print(len(bs))
         dataframe = pd.DataFrame(
             bs,
             columns=["image", "caption", "image_id", "split"],
@@ -79,4 +82,4 @@ def make_arrow(root, dataset_root):
 
 
 if __name__ == "__main__":
-    make_arrow("data", "data")
+    make_arrow("data", "data2")
