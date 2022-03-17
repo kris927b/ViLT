@@ -23,7 +23,7 @@ class MTDataModule(LightningDataModule):
         self.vocab_size = self.dms[0].vocab_size
         self.num_workers = self.dms[0].num_workers
 
-        self.dist = dist
+        self.dist = False
 
     def prepare_data(self):
         for dm in self.dms:

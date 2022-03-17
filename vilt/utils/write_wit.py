@@ -9,11 +9,11 @@ import os
 from tqdm import tqdm
 from glob import glob
 from PIL import Image
-from base64 import decodestring
+from base64 import b64decode
 import io
 import gzip
 
-SUB = 50
+SUB = 20
 
 LINK = "https://analytics.wikimedia.org/published/datasets/one-off/caption_competition/training/image_pixels/part-{part}-04b253b8-db8c-4d14-a23f-3433a86841b4-c000.csv.gz"
 
@@ -38,9 +38,11 @@ def find_images(iid2captions, pixels):
     for line in pixels:
         l = line.decode().strip().split("\t")
         if l[0] in iid2captions.keys():
-            img = Image.frombytes("RGB", (300, 300), decodestring(l[1])).tobytes()
+            img = Image.open(io.BytesIO(b64decode(l[1])))
+            b = io.BytesIO()
+            img.convert('RGB').save(b, 'PNG')
             yield [
-                img,
+                b.getvalue(),
                 iid2captions[l[0]][0],
                 "_".join(l[0].strip().split("/")[-3]),
                 iid2captions[l[0]][1],
@@ -71,26 +73,30 @@ def make_arrow(root, dataset_root):
     sub_len = int(200 // SUB)
     subs = list(range(sub_len + 1))
     for sub in subs:
+        if sub in [0, 1, 2]:
+            continue
         sub_paths = list(range(sub * SUB, (sub + 1) * SUB))
-        bs = [
-            find_images(
-                iid2captions,
-                gzip.open(
-                    io.BytesIO(
-                        requests.get(
-                            LINK.format(part="0" * (5 - len(str(i))) + str(i))
-                        ).content
+        bs = []
+        for i in tqdm(sub_paths):
+            bs.extend(list(
+                find_images(
+                    iid2captions,
+                    gzip.open(
+                        io.BytesIO(
+                            requests.get(
+                                LINK.format(part="0" * (5 - len(str(i))) + str(i))
+                            ).content
+                        ),
+                        mode="rb",
                     ),
-                    mode="rb",
-                ),
-            )
-            for i in tqdm(sub_paths)
-        ]
+                )
+            ))
+        print(len(bs))
         dataframe = pd.DataFrame(
             bs,
             columns=["image", "caption", "image_id", "split"],
         )
-        print("Instances:", len(dataframe))
+        
         table = pa.Table.from_pandas(dataframe)
 
         os.makedirs(dataset_root, exist_ok=True)

@@ -145,7 +145,7 @@ class ViLTransformerSS(pl.LightningModule):
                 None,
             )
 
-        if image_embeds:
+        if image_embeds is not None:
             text_embeds, image_embeds = (
                 text_embeds + self.token_type_embeddings(torch.zeros_like(text_masks)),
                 image_embeds

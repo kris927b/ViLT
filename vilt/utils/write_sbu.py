@@ -18,16 +18,20 @@ def path2rest(path, iid2captions):
     name = path.split("/")[-1].split(".")[0]
     split = "train"
     iid = path
+    t = path.split(".")[-1]
     captions = iid2captions[iid]
     binary = requests.get(path).content
-
+    
     try:
-        img = Image.open(BytesIO(binary)).tobytes()
+        img = Image.open(BytesIO(binary))
     except UnidentifiedImageError:
         return None
+    
+    b = BytesIO()
+    img.convert('RGB').save(b, 'PNG')
 
     return [
-        img,
+        b.getvalue(),
         captions,
         name,
         split,
@@ -35,7 +39,7 @@ def path2rest(path, iid2captions):
 
 
 def make_arrow(root, dataset_root):
-    with open(f"{root}/da_annot.json", "r") as fp:
+    with open(f"{root}/annot.json", "r") as fp:
         captions = json.load(fp)
 
     iid2captions = dict()

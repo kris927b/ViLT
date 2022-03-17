@@ -9,9 +9,9 @@ class SBUCaptionDataset(BaseDataset):
             split = "val"
 
         if split == "train":
-            names = [f"sbu_{i}" for i in range(9)]
+            names = [f"sbu_{i}" for i in range(14)]
         elif split == "val":
-            names = []
+            names = ["sbu_14"]
 
         super().__init__(*args, **kwargs, names=names, text_column_name="caption")
 
