@@ -247,6 +247,7 @@ def compute_itm_wpa(pl_module, batch):
         )
         distance = trace(cost.matmul(T.detach()))
 
+    # print(itm_labels.size(), distance.size())
     dist_pos = distance.masked_select(itm_labels == 1)
     dist_neg = distance.masked_select(itm_labels == 0)
     ot_loss = (dist_pos.sum() - dist_neg.sum()) / (dist_pos.size(0) + dist_neg.size(0))

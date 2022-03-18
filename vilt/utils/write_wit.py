@@ -73,7 +73,7 @@ def make_arrow(root, dataset_root):
     sub_len = int(200 // SUB)
     subs = list(range(sub_len + 1))
     for sub in subs:
-        if sub in [0, 1, 2]:
+        if sub in list(range(9)):
             continue
         sub_paths = list(range(sub * SUB, (sub + 1) * SUB))
         bs = []

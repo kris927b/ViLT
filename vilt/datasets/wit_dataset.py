@@ -8,7 +8,7 @@ class WITDataset(BaseDataset):
             split = "val"
 
         if split == "train":
-            names = [f"wit_train_{i}" for i in range(3)]
+            names = [f"wit_train_{i}" for i in range(10)]
         elif split == "val":
             names = ["wit_train_0"]
 

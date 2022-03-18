@@ -123,7 +123,7 @@ def wit_task_mlm_itm():
 
 
 @ex.named_config
-def dagw_task_mlm_itm():
+def dagw_task_mlm():
     exp_name = "dagw_mlm"
     datasets = ["dagw"]
     loss_names = _loss_names({"mlm": 1})
