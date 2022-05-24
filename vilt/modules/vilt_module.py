@@ -74,6 +74,16 @@ class ViLTransformerSS(pl.LightningModule):
             )
             self.vqa_classifier.apply(objectives.init_weights)
 
+        if self.hparams.config["loss_names"]["imgcls"] > 0:
+            vs = self.hparams.config["imgcls_label_size"]
+            self.img_classifier = nn.Sequential(
+                nn.Linear(hs, hs * 2),
+                nn.LayerNorm(hs * 2),
+                nn.GELU(),
+                nn.Linear(hs * 2, vs),
+            )
+            self.img_classifier.apply(objectives.init_weights)
+
         if self.hparams.config["loss_names"]["nlvr2"] > 0:
             self.nlvr2_classifier = nn.Sequential(
                 nn.Linear(hs * 2, hs * 2),
@@ -220,6 +230,10 @@ class ViLTransformerSS(pl.LightningModule):
         if "irtr" in self.current_tasks:
             ret.update(objectives.compute_irtr(self, batch))
 
+        # Property type classification
+        if "imgcls" in self.current_tasks:
+            ret.update(objectives.compute_imgcls(self, batch))
+
         return ret
 
     def training_step(self, batch, batch_idx):
@@ -237,7 +251,8 @@ class ViLTransformerSS(pl.LightningModule):
         output = self(batch)
 
     def validation_epoch_end(self, outs):
-        vilt_utils.epoch_wrapup(self)
+        model_name = self.hparams.config["load_path"].split("/")[-4]
+        vilt_utils.epoch_wrapup(self, model_name)
 
     def test_step(self, batch, batch_idx):
         vilt_utils.set_task(self)

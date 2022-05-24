@@ -11,6 +11,7 @@ def _loss_names(d):
         "vqa": 0,
         "nlvr2": 0,
         "irtr": 0,
+        "imgcls": 0
     }
     ret.update(d)
     return ret
@@ -36,6 +37,7 @@ def config():
 
     # Text Setting
     vqav2_label_size = 3129
+    imgcls_label_size = 7
     max_text_len = 40
     tokenizer = "bert-base-uncased"
     vocab_size = 30522
@@ -107,8 +109,8 @@ def sbu_task_mlm_itm():
     exp_name = "sbu_mlm_itm"
     datasets = ["sbu"]
     loss_names = _loss_names({"itm": 1, "mlm": 1})
-    batch_size = 4096
-    max_epoch = 10
+    batch_size = 64
+    max_epoch = 1000
     max_image_len = 200
 
 
@@ -117,9 +119,30 @@ def wit_task_mlm_itm():
     exp_name = "wit_mlm_itm"
     datasets = ["wit"]
     loss_names = _loss_names({"itm": 1, "mlm": 1})
-    batch_size = 4096
-    max_epoch = 10
+    batch_size = 128
+    max_epoch = 1000
     max_image_len = 200
+    
+
+@ex.named_config
+def sbu_task_mlm():
+    exp_name = "sbu_mlm"
+    datasets = ["sbu"]
+    loss_names = _loss_names({"mlm": 1})
+    batch_size = 32
+    max_epoch = 1000
+    max_image_len = 200
+
+
+@ex.named_config
+def wit_task_mlm():
+    exp_name = "wit_mlm"
+    datasets = ["wit"]
+    loss_names = _loss_names({"mlm": 1})
+    batch_size = 128
+    max_epoch = 1000
+    max_image_len = 200
+
 
 
 @ex.named_config
@@ -127,8 +150,8 @@ def dagw_task_mlm():
     exp_name = "dagw_mlm"
     datasets = ["dagw"]
     loss_names = _loss_names({"mlm": 1})
-    batch_size = 4096
-    max_epoch = 10
+    batch_size = 128
+    max_epoch = 1000
     max_image_len = 200
     text_only = True
     draw_false_image = 0
@@ -250,6 +273,67 @@ def task_finetune_irtr_f30k():
     loss_names = _loss_names({"itm": 0.5, "irtr": 1})
     batch_size = 256
     max_epoch = 10
+    max_steps = None
+    warmup_steps = 0.1
+    get_recall_metric = True
+    draw_false_text = 15
+    learning_rate = 1e-4
+
+@ex.named_config
+def task_finetune_imgcls_danh():
+    exp_name = "finetune_imgcls_danh"
+    datasets = ["danh"]
+    loss_names = _loss_names({"imgcls": 1})
+    batch_size = 64
+    max_epoch = 10
+    max_steps = None
+    warmup_steps = 0.1
+    learning_rate = 1e-4
+
+@ex.named_config
+def task_finetune_imgcls_amh():
+    exp_name = "finetune_imgcls_amh"
+    datasets = ["amh"]
+    loss_names = _loss_names({"imgcls": 1})
+    batch_size = 64
+    max_epoch = 10
+    max_steps = None
+    warmup_steps = 0.1
+    learning_rate = 1e-4
+
+@ex.named_config
+def task_finetune_irtr_smallh():
+    exp_name = "finetune_irtr_smallh"
+    datasets = ["smallh"]
+    loss_names = _loss_names({"itm": 0.5, "irtr": 1})
+    batch_size = 128
+    max_epoch = 30
+    max_steps = None
+    warmup_steps = 0.1
+    get_recall_metric = True
+    draw_false_text = 9
+    learning_rate = 1e-4
+
+@ex.named_config
+def task_finetune_irtr_danh():
+    exp_name = "finetune_irtr_danh"
+    datasets = ["danh"]
+    loss_names = _loss_names({"itm": 0.5, "irtr": 1})
+    batch_size = 128
+    max_epoch = 30
+    max_steps = None
+    warmup_steps = 0.1
+    get_recall_metric = True
+    draw_false_text = 15
+    learning_rate = 1e-4
+
+@ex.named_config
+def task_finetune_irtr_amh():
+    exp_name = "finetune_irtr_amh"
+    datasets = ["amh"]
+    loss_names = _loss_names({"itm": 0.5, "irtr": 1})
+    batch_size = 128
+    max_epoch = 30
     max_steps = None
     warmup_steps = 0.1
     get_recall_metric = True

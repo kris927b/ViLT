@@ -7,7 +7,7 @@ import json
 import tqdm
 import functools
 
-from torch.utils.data.distributed import DistributedSampler
+from torch.utils.data import SequentialSampler
 from einops import rearrange
 
 from vilt.modules.dist_utils import all_gather
@@ -293,8 +293,9 @@ def compute_imgcls(pl_module, batch):
     acc = getattr(pl_module, f"{phase}_imgcls_accuracy")(
         ret["imgcls_logits"], ret["imgcls_labels"]
     )
-    pl_module.log(f"imgcls/{phase}/loss", loss)
-    pl_module.log(f"imgcls/{phase}/accuracy", acc)
+    if not pl_module.hparams.config["test_only"]:
+        pl_module.log(f"imgcls/{phase}/loss", loss)
+        pl_module.log(f"imgcls/{phase}/accuracy", acc)
 
     return ret
 
@@ -437,18 +438,19 @@ def compute_irtr(pl_module, batch):
     phase = "train" if pl_module.training else "val"
     irtr_loss = getattr(pl_module, f"{phase}_irtr_loss")(ret["irtr_loss"])
 
-    pl_module.log(f"irtr/{phase}/irtr_loss", irtr_loss)
+    if not pl_module.hparams.config["test_only"]:
+        pl_module.log(f"irtr/{phase}/irtr_loss", irtr_loss)
 
     return ret
 
 
 @torch.no_grad()
-def compute_irtr_recall(pl_module):
+def compute_irtr_recall(pl_module, return_scores=False):
     text_dset = pl_module.trainer.datamodule.dms[0].make_no_false_val_dset()
     text_dset.tokenizer = pl_module.trainer.datamodule.dms[0].tokenizer
     text_loader = torch.utils.data.DataLoader(
         text_dset,
-        batch_size=64,
+        batch_size=128,
         num_workers=pl_module.hparams.config["num_workers"],
         pin_memory=True,
         collate_fn=functools.partial(
@@ -461,7 +463,7 @@ def compute_irtr_recall(pl_module):
         image_only=True
     )
     image_dset.tokenizer = pl_module.trainer.datamodule.dms[0].tokenizer
-    dist_sampler = DistributedSampler(image_dset, shuffle=False)
+    dist_sampler = SequentialSampler(image_dset) # , shuffle=False)
     image_loader = torch.utils.data.DataLoader(
         image_dset,
         batch_size=1,
@@ -531,7 +533,7 @@ def compute_irtr_recall(pl_module):
         rank_scores.append(img_batch_score.cpu().tolist())
         rank_iids.append(_iid)
 
-    torch.distributed.barrier()
+    # torch.distributed.barrier()
     gather_rank_scores = all_gather(rank_scores)
     gather_rank_iids = all_gather(rank_iids)
 
@@ -561,6 +563,9 @@ def compute_irtr_recall(pl_module):
     ir_r10 = (tiids.unsqueeze(0) == topk10_iids).float().max(dim=0)[0].mean()
     ir_r5 = (tiids.unsqueeze(0) == topk5_iids).float().max(dim=0)[0].mean()
     ir_r1 = (tiids.unsqueeze(0) == topk1_iids).float().max(dim=0)[0].mean()
+
+    if return_scores:
+        return (ir_r1, ir_r5, ir_r10, tr_r1, tr_r5, tr_r10), scores, iids
 
     return (ir_r1, ir_r5, ir_r10, tr_r1, tr_r5, tr_r10)
 

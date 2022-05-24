@@ -7,6 +7,9 @@ from .vqav2_datamodule import VQAv2DataModule
 from .nlvr2_datamodule import NLVR2DataModule
 from .wit_datamodule import WITDataModule
 from .dagw_datamodule import DAGWDataModule
+from .danhomes_datamodule import DanHomesDataModule
+from .amhomes_datamodule import AmericanHomesDataModule
+from .small_datamodule import SmallHomesDataModule
 
 _datamodules = {
     "vg": VisualGenomeCaptionDataModule,
@@ -18,4 +21,7 @@ _datamodules = {
     "nlvr2": NLVR2DataModule,
     "wit": WITDataModule,
     "dagw": DAGWDataModule,
+    "danh": DanHomesDataModule,
+    "amh": AmericanHomesDataModule,
+    "smallh": SmallHomesDataModule
 }

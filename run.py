@@ -1,5 +1,6 @@
 import os
 import copy
+import json
 import pytorch_lightning as pl
 
 from vilt.config import ex
@@ -49,14 +50,13 @@ def main(_config):
         gpus=_config["num_gpus"],
         num_nodes=_config["num_nodes"],
         precision=_config["precision"],
-        accelerator="dp",
+        strategy="dp",
         benchmark=True,
-        deterministic=True,
+        deterministic=False,
         max_epochs=_config["max_epoch"] if max_steps is None else 1000,
         max_steps=max_steps,
         callbacks=callbacks,
         logger=logger,
-        prepare_data_per_node=False,
         replace_sampler_ddp=False,
         accumulate_grad_batches=grad_steps,
         log_every_n_steps=10,
@@ -70,4 +70,4 @@ def main(_config):
     if not _config["test_only"]:
         trainer.fit(model, datamodule=dm)
     else:
-        trainer.test(model, datamodule=dm)
+        trainer.validate(model, datamodule=dm)

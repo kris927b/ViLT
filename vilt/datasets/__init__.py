@@ -7,3 +7,6 @@ from .vqav2_dataset import VQAv2Dataset
 from .nlvr2_dataset import NLVR2Dataset
 from .wit_dataset import WITDataset
 from .dagw_dataset import DAGWDataset
+from .danhomes_dataset import DanHomesDataset
+from .amhomes_dataset import AmericanHomesDataset
+from .small_dataset import SmallHomesDataset

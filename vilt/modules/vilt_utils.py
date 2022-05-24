@@ -1,5 +1,6 @@
+from cgi import test
 import torch
-import random
+import json
 
 from transformers.optimization import AdamW
 from transformers import (
@@ -41,12 +42,21 @@ def set_metrics(pl_module):
                 setattr(pl_module, f"{split}_{k}_loss", Scalar())
 
 
-def epoch_wrapup(pl_module):
+def epoch_wrapup(pl_module, model_name=""):
     phase = "train" if pl_module.training else "val"
     the_metric = 0
 
-    if pl_module.hparams.config["get_recall_metric"] and not pl_module.training:
-        (ir_r1, ir_r5, ir_r10, tr_r1, tr_r5, tr_r10) = compute_irtr_recall(pl_module)
+    if pl_module.hparams.config["get_recall_metric"] and not pl_module.training: # and (pl_module.current_epoch+1) % 10 == 0:
+        scores = compute_irtr_recall(pl_module, return_scores=pl_module.hparams.config["test_only"])
+
+        if pl_module.hparams.config["test_only"]:
+            (ir_r1, ir_r5, ir_r10, tr_r1, tr_r5, tr_r10), score_matrix, iids = scores
+            with open(f"result/{model_name}_preds.json", "w") as fp:
+                preds = {"ir_r1":ir_r1.tolist(), "ir_r5":ir_r5.tolist(), "ir_r10":ir_r10.tolist(), "tr_r1":tr_r1.tolist(), "tr_r5":tr_r5.tolist(), "tr_r10":tr_r10.tolist(), "scores": score_matrix.tolist(), "iids": iids.tolist()}
+                json.dump(preds, fp)
+        else:
+            (ir_r1, ir_r5, ir_r10, tr_r1, tr_r5, tr_r10) = scores
+        
         print((ir_r1, ir_r5, ir_r10, tr_r1, tr_r5, tr_r10), pl_module.global_step)
         pl_module.logger.experiment.add_scalar(
             "recalls/ir_r1", ir_r1, pl_module.global_step
