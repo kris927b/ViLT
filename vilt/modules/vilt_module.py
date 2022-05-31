@@ -132,10 +132,13 @@ class ViLTransformerSS(pl.LightningModule):
             imgkey = "image"
 
         do_mlm = "_mlm" if mask_text else ""
-        text_ids = batch[f"text_ids{do_mlm}"]
-        text_labels = batch[f"text_labels{do_mlm}"]
-        text_masks = batch[f"text_masks"]
-        text_embeds = self.text_embeddings(text_ids)
+        if f"text_ids{do_mlm}" in batch:
+            text_ids = batch[f"text_ids{do_mlm}"]
+            text_labels = batch[f"text_labels{do_mlm}"]
+            text_masks = batch[f"text_masks"]
+            text_embeds = self.text_embeddings(text_ids)
+        else:
+            text_embeds,text_masks,text_labels,text_ids = None, None, None, None
 
         if image_embeds is None and image_masks is None and imgkey in batch:
             img = batch[imgkey][0]
@@ -155,7 +158,7 @@ class ViLTransformerSS(pl.LightningModule):
                 None,
             )
 
-        if image_embeds is not None:
+        if image_embeds is not None and text_embeds is not None:
             text_embeds, image_embeds = (
                 text_embeds + self.token_type_embeddings(torch.zeros_like(text_masks)),
                 image_embeds
@@ -168,20 +171,28 @@ class ViLTransformerSS(pl.LightningModule):
             co_masks = torch.cat([text_masks, image_masks], dim=1)
             masks = co_masks
             x = co_embeds
-        else:
+        elif image_embeds is None:
             text_embeds = text_embeds + self.token_type_embeddings(
                 torch.zeros_like(text_masks)
             )
             x = text_embeds
             masks = text_masks
+        else:
+            image_embeds = image_embeds + self.token_type_embeddings(
+                    torch.full_like(image_masks, image_token_type_idx)
+                )
+            x = image_embeds
+            masks = image_masks
 
         for i, blk in enumerate(self.transformer.blocks):
             x, _attn = blk(x, mask=masks)
 
+        text_len = 0 if text_embeds is None else text_embeds.shape[1]
+
         x = self.transformer.norm(x)
         text_feats, image_feats = (
-            x[:, : text_embeds.shape[1]],
-            x[:, text_embeds.shape[1] :],
+            x[:, : text_len],
+            x[:, text_len :],
         )
         cls_feats = self.pooler(x)
 
@@ -269,7 +280,8 @@ class ViLTransformerSS(pl.LightningModule):
 
         if self.hparams.config["loss_names"]["vqa"] > 0:
             objectives.vqa_test_wrapup(outs, model_name)
-        vilt_utils.epoch_wrapup(self)
+        model_name = self.hparams.config["load_path"].split("/")[-4]
+        vilt_utils.epoch_wrapup(self, model_name)
 
     def configure_optimizers(self):
         return vilt_utils.set_schedule(self)

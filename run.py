@@ -70,4 +70,16 @@ def main(_config):
     if not _config["test_only"]:
         trainer.fit(model, datamodule=dm)
     else:
-        trainer.validate(model, datamodule=dm)
+        trainer.test(model, datamodule=dm)
+        if "imgcls" in exp_name:
+            preds = trainer.predict(model, datamodule=dm)
+
+            new_preds = []
+            for pred in preds:
+                new_preds.append({"loss": pred["imgcls_loss"].tolist(),
+            "logits": pred["imgcls_logits"].tolist(),
+            "labels": pred["imgcls_labels"].tolist()})
+
+            model_name = _config["load_path"].split("/")[-4]
+            # sets = "img" if _config["image_only"] else "txt"
+            json.dump(new_preds, open(f"result/{model_name}_test.json", "w"))

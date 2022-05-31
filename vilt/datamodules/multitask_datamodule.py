@@ -83,9 +83,9 @@ class MTDataModule(LightningDataModule):
 
     def predict_dataloader(self, batch_size=None):
         loader = DataLoader(
-            self.val_dataset,
-            batch_size=batch_size if batch_size is not None else self.batch_size,
-            sampler=self.val_sampler,
+            self.test_dataset,
+            batch_size=self.batch_size,
+            sampler=self.test_sampler,
             num_workers=self.num_workers,
             collate_fn=self.collate,
         )

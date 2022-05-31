@@ -36,6 +36,7 @@ class BaseDataModule(LightningDataModule):
         self.draw_false_image = _config["draw_false_image"]
         self.draw_false_text = _config["draw_false_text"]
         self.image_only = _config["image_only"]
+        self.text_only = _config["text_only"]
 
         self.train_transform_keys = (
             ["default_train"]
@@ -82,6 +83,7 @@ class BaseDataModule(LightningDataModule):
             draw_false_image=self.draw_false_image,
             draw_false_text=self.draw_false_text,
             image_only=self.image_only,
+            text_only=self.text_only,
         )
 
     def set_val_dataset(self):
@@ -94,6 +96,7 @@ class BaseDataModule(LightningDataModule):
             draw_false_image=self.draw_false_image,
             draw_false_text=self.draw_false_text,
             image_only=self.image_only,
+            text_only=self.text_only,
         )
 
         if hasattr(self, "dataset_cls_no_false"):
@@ -112,7 +115,7 @@ class BaseDataModule(LightningDataModule):
         return self.dataset_cls_no_false(
             self.data_dir,
             self.val_transform_keys,
-            split="val",
+            split="test",
             image_size=self.image_size,
             max_text_len=self.max_text_len,
             draw_false_image=0,
@@ -130,6 +133,7 @@ class BaseDataModule(LightningDataModule):
             draw_false_image=self.draw_false_image,
             draw_false_text=self.draw_false_text,
             image_only=self.image_only,
+            text_only=self.text_only,
         )
 
     def setup(self, stage):
